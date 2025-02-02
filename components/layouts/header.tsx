@@ -320,7 +320,7 @@ const Header = () => {
                                     ) : (
                                         <li className="mb-5" onClick={(e) => e.stopPropagation()}>
                                             <button type="button" className="!grid min-h-[200px] place-content-center text-lg hover:!bg-transparent">
-                                                <div className="mx-auto mb-4 rounded-full text-white ring-4 ring-primary/30">
+                                                <div className="mx-auto mb-4 rounded-full text-primary ring-4 ring-primary/30">
                                                     <IconInfoCircle fill={true} className="h-10 w-10" />
                                                 </div>
                                                 No data available.
