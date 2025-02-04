@@ -7,9 +7,18 @@ export const adminAPI = createApi({
   }),
   endpoints: (builder) => ({
     getStudents: builder.query({
-      query: (arg) => arg ? `/admins/students` : "/admins/students", // Optional arg handling
+      query: (arg) => arg ? `/admin/students` : "/admin/students", // Optional arg handling
     }),
+    getSeatLayout: builder.query({
+      query: ({adminId}) => `/admin/seatLayout?adminId=${adminId}`,
+    }),
+
+    getAttendance: builder.query({
+      query: ({ date, libraryId, adminId }) =>
+        `/admin/attendance/${date}/${libraryId}/${adminId}`,
+    }),
+    
   }),
 });
 
-export const { useGetStudentsQuery } = adminAPI;
+export const { useGetStudentsQuery, useGetSeatLayoutQuery, useGetAttendanceQuery } = adminAPI;
