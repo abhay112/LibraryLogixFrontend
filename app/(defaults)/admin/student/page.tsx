@@ -1,17 +1,40 @@
-import AdminStudentTable from '@/components/students/AdminStudentTable';
-import { Metadata } from 'next';
-import React from 'react';
+'use client';
 
-export const metadata: Metadata = {
-    title: 'Students',
-};
+import AdminStudentTable from '@/components/students/AdminStudentTable';
+import { useAuth } from '@/context/AuthContext';
+import { Metadata } from 'next';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import ProtectedRoute from '@/hoc/ProtectedRoute';
+import { useSelector } from 'react-redux';
+import { IRootState } from '@/store';
+
+// export const metadata: Metadata = {
+//   title: 'Students',
+// };
 
 const Tables = () => {
-    return (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-1">
-            <AdminStudentTable />
-        </div>
-    );
+  const user = useSelector((state: IRootState) => state.auth.user);
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user === null) {
+      router.push('/login');
+    } else {
+      setLoading(false);
+    }
+  }, [user, router]);
+
+  if (loading) return <p>Loading...</p>; 
+
+  return (
+    <ProtectedRoute>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-1">
+        <AdminStudentTable />
+      </div>
+    </ProtectedRoute>
+  );
 };
 
 export default Tables;

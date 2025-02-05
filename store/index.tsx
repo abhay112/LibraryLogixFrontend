@@ -1,9 +1,11 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import themeConfigSlice from "@/store/themeConfigSlice";
 import { adminAPI } from "./api/adminAPI";
+import authSlice from "@/store/reducer/authSlice"; // Import auth slice
 
 const rootReducer = combineReducers({
   themeConfig: themeConfigSlice,
+  auth: authSlice, 
   [adminAPI.reducerPath]: adminAPI.reducer, // Add API reducer
 });
 
