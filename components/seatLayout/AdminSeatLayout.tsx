@@ -1,16 +1,48 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useGetSeatLayoutQuery } from "@/store/api/adminAPI";
 import { FaRestroom, FaDoorOpen } from "react-icons/fa"; // For washroom and gate icons
 
 // Defining the type for seatMap explicitly
 type SeatMap = Record<number, number[]>;
+interface SeatMatrix {
+  layout: any[]; // You can replace `any[]` with the actual row type if known
+}
+
 
 const AdminSeatLayout = () => {
   const { data: response, error, isLoading } = useGetSeatLayoutQuery({
-    adminId: "67a22c69b838b41440922a13",
+    adminId: "67a22f8b9b9e29e00d5f7e67",
+    date:"2025-02-05"
   });
+  const [seatMatrix, setSeatMatrix] = useState<SeatMatrix | null>(null);
+  const [attendanceRecord, setAttendanceRecord] = useState<any>(null);
+  const [seatOccupancyMap, setSeatOccupancyMap] = useState<Map<number, any>>(new Map());
+
+  useEffect(() => {
+    if (response) {
+      // Set seat matrix
+      setSeatMatrix(response?.seatLayout?.seatLayout[0]);
+
+      // Set attendance record
+      setAttendanceRecord(response?.seatLayout?.attendanceRecord);
+
+      // Create and set seat occupancy map
+      const newSeatOccupancyMap = new Map<number, any>();
+      if (response?.seatLayout?.attendanceRecord?.seatOccupancy) {
+        Object.entries(response.seatLayout.attendanceRecord.seatOccupancy).forEach(
+          ([seatNumber, seatData]: [string, any]) => {
+            newSeatOccupancyMap.set(Number(seatNumber), seatData);
+          }
+        );
+      }
+      setSeatOccupancyMap(newSeatOccupancyMap);
+    }
+  }, [response]);
+
+ 
+  console.log(seatMatrix,seatOccupancyMap,attendanceRecord,'seatMatrix')
 
   if (isLoading) {
     return (
@@ -58,63 +90,62 @@ const AdminSeatLayout = () => {
         </li>
       </ul>
 
-      {/* Admin and Library Details */}
-      <div className="bg-gray-100 p-4 rounded-md mb-6 shadow-md">
-        <div className="flex justify-between">
-          <span className="text-lg font-semibold">Library ID: {response?.seatLayout[0]?.libraryId}</span>
-          <span className="text-lg font-semibold">Admin ID: {response?.seatLayout[0]?.adminId}</span>
-        </div>
-      </div>
-
       {/* Seat Layout Container */}
-      <div className="bg-white mt-6 dark:text-white-light dark:bg-slate-700 p-6 rounded-lg shadow-md">
-        <div className="space-y-4">
-          {response?.seatLayout[0]?.layout.map((row: any, rowIndex: number) => (
-            <div key={rowIndex} className="flex justify-center space-x-4">
-              {row.map((seat: any) => {
-                const seatPosition = seatMap[seat.seatNumber as keyof SeatMap]; 
-                const seatRow = seatPosition ? seatPosition[0] : rowIndex + 1;
-                const seatCol = seatPosition ? seatPosition[1] : 1;
+      <div className="bg-white mt-6 dark:text-white-light dark:bg-slate-700 p-8 rounded-lg shadow-md">
+        <div className="space-y-4 overflow-x-auto">
+          <div className="flex flex-col space-y-1 min-w-max">
+            {seatMatrix?.layout?.map((row: any, rowIndex: number) => (
+              <div key={rowIndex} className="flex justify-center space-x-1 md:space-x-2">
+                {row?.map((seat: any) => {
+                  const seatPosition = seatMap[seat.seatNumber as keyof SeatMap];
+                  const seatRow = seatPosition ? seatPosition[0] : rowIndex + 1;
+                  const seatCol = seatPosition ? seatPosition[1] : 1;
+                  const seatNumber = seat?.seatNumber;
 
-                return (
-                  <div
-                    key={seat._id}
-                    className={`relative flex items-center justify-center w-14 h-14 md:w-16 md:h-16 text-xs rounded-lg border-2 border-gray-300 shadow-md cursor-pointer transform transition-all duration-200 ease-in-out ${
-                      seat.isSeatPresent
-                        ? seat.status === "VACANT"
-                          ? "bg-green-400 hover:bg-green-500"
-                          : seat.status === "BOOKED"
-                          ? "bg-red-400 hover:bg-red-500"
-                          : "bg-gray-400"
-                        : "opacity-0"
-                    }`}
-                  >
-                    <span className="font-semibold text-white">
-                      {seat.seatType === "SEAT" ? seat.seatNumber : seat.seatType}
-                    </span>
+                  // Check if the seat is occupied
+                  const isOccupied = seatOccupancyMap.has(seatNumber);
+                  const seatStatus = isOccupied
+                    ? {status:seatOccupancyMap.get(seatNumber).AFTERNOON.status, name:seatOccupancyMap.get(seatNumber).AFTERNOON.studentName}
+                    : {status:seat.status, name:null};
+                  return (
+                    <div key={seat._id} className="relative">
+                      {/* Check for special seat numbers and replace with icons */}
+                      {seatNumber === 1001 ? (
+                        <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 min-w-[20px] rounded-lg bg-green-600 text-white text-xs">
+                          <FaDoorOpen className="text-lg md:text-xl" />
+                        </div>
+                      ) : seatNumber === 1002 ? (
+                        <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 min-w-[20px] rounded-lg bg-blue-600 text-white text-xs">
+                          <FaRestroom className="text-lg md:text-xl" />
+                        </div>
+                      ) : (
+                        <div
+                          className={`relative flex items-center justify-center w-6 h-6 md:w-10 md:h-10 min-w-[20px] text-xs rounded-lg border-2 border-gray-300 shadow-md cursor-pointer transform transition-all duration-200 ease-in-out ${
+                            seat.isSeatPresent
+                              ? seatStatus?.status === "VACANT"
+                                ? "bg-green-400 hover:bg-green-500"
+                                : seatStatus?.status === "FILLED"
+                                ? "bg-red-400 hover:bg-red-500"
+                                : "bg-gray-400"
+                              : "opacity-0"
+                          }`}
+                        >
+                          <span className="font-semibold text-white text-[13px]">
+                            {seat.seatType === "SEAT" ? seat.seatNumber : seat.seatType}
+                          </span>
 
-                    {seat.status === "BOOKED" && (
-                      <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 text-white text-xs font-bold rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
-                        Booked
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-
-          <div className="flex justify-center mt-6 space-x-6">
-            {/* Washroom Icon */}
-            <div className="flex items-center space-x-2">
-              <FaRestroom className="text-xl text-blue-600" />
-              <span className="text-lg font-medium">Washroom</span>
-            </div>
-            {/* Gate Icon */}
-            <div className="flex items-center space-x-2">
-              <FaDoorOpen className="text-xl text-green-600" />
-              <span className="text-lg font-medium">Gate</span>
-            </div>
+                          {seatStatus?.status === "FILLED" && (
+                            <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 text-white text-xs font-bold rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
+                              {seatStatus?.name}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
       </div>

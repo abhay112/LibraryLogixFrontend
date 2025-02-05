@@ -10,7 +10,7 @@ export const adminAPI = createApi({
       query: (arg) => arg ? `/admin/students` : "/admin/students", // Optional arg handling
     }),
     getSeatLayout: builder.query({
-      query: ({adminId}) => `/admin/seatLayout?adminId=${adminId}`,
+      query: ({date, adminId}) => `/admin/seatLayout?adminId=${adminId}&date=${date}`,
     }),
 
     getAttendance: builder.query({

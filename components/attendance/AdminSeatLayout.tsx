@@ -9,19 +9,20 @@ import IconPencil from "../icon/icon-pencil";
 import IconSettings from "../icon/icon-settings";
 
 const AdminAttendaceTable = () => {
+  const [data,setData] = useState([])
+
   const { data:attendance, error, isLoading } = useGetAttendanceQuery({
-    date: "2025-01-25",
-    libraryId: "67a0d7041600c22ade19f2ae",
-    adminId: "67a0d7041600c22ade19f2ac",
+    date: "2025-02-05",
+    libraryId: "67a22f8b9b9e29e00d5f7e69",
+    adminId: "67a22f8b9b9e29e00d5f7e67",
   });
   
-    const [data,setData] = useState([])
   useEffect(()=>{
     if(attendance){
         setData(attendance?.data?.attendanceRecord?.filledSeats);
-        debugger
     }
   },[attendance]);
+
   console.log(data)
   if (isLoading) return <p>Loading attendance...</p>;
   if (error) return <p>Error fetching students</p>;
@@ -46,9 +47,9 @@ const AdminAttendaceTable = () => {
                 <input type="checkbox" className="form-checkbox" />
               </th>
               <th>Name</th>
-              <th>Email</th>
-              <th>Date</th>
-              <th>Sale</th>
+              <th>Shift</th>
+              <th>Seat Number</th>
+              {/* <th>Sale</th> */}
               <th>Status</th>
               <th className="!text-center">Action</th>
             </tr>
@@ -60,11 +61,11 @@ const AdminAttendaceTable = () => {
                   <input type="checkbox" className="form-checkbox" />
                 </td>
                 <td>
-                  <div className="whitespace-nowrap">{student.name}</div>
+                  <div className="whitespace-nowrap">{student?.studentName}</div>
                 </td>
-                <td>{student.email}</td>
-                <td>{student.date}</td>
-                <td>{student.sale}</td>
+                <td>{student.shift}</td>
+                <td>{student.seatNumber}</td>
+                {/* <td>{student.sale}</td> */}
                 <td>{student.status}</td>
                 <td className="text-center">
                   <ul className="flex items-center justify-center gap-2">
