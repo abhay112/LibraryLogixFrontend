@@ -10,7 +10,7 @@ import { useGetStudentsQuery } from "@/store/api/adminAPI";
 
 const AdminStudentTable = () => {
   const { data: students, error, isLoading } = useGetStudentsQuery(null);
-    const [data,setData] = useState([])
+  const [data,setData] = useState([])
   useEffect(()=>{
     if(students){
         setData(students?.data)
@@ -41,8 +41,8 @@ const AdminStudentTable = () => {
               </th>
               <th>Name</th>
               <th>Email</th>
-              <th>Date</th>
-              <th>Sale</th>
+              <th>Mobile</th>
+              <th>Shift</th>
               <th>Status</th>
               <th className="!text-center">Action</th>
             </tr>
@@ -56,10 +56,10 @@ const AdminStudentTable = () => {
                 <td>
                   <div className="whitespace-nowrap">{student.name}</div>
                 </td>
-                <td>{student.email}</td>
-                <td>{student.date}</td>
-                <td>{student.sale}</td>
-                <td>{student.status}</td>
+                <td>{student?.email}</td>
+                <td>{student?.mobile}</td>
+                <td className="uppercase">{student?.shift}</td>
+                <td>{student?.active?"Active":"INACTIVE"}</td>
                 <td className="text-center">
                   <ul className="flex items-center justify-center gap-2">
                     <li>

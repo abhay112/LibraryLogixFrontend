@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useGetSeatLayoutQuery } from "@/store/api/adminAPI";
 import { FaRestroom, FaDoorOpen } from "react-icons/fa"; // For washroom and gate icons
+import CreateAttendanceModal from "../admin/CreateAttendanceModal";
 
 // Defining the type for seatMap explicitly
 type SeatMap = Record<number, number[]>;
@@ -14,17 +15,29 @@ interface SeatMatrix {
 const AdminSeatLayout = () => {
   const { data: response, error, isLoading } = useGetSeatLayoutQuery({
     adminId: "67a22f8b9b9e29e00d5f7e67",
-    date:"2025-02-05"
+    date:"2025-02-06"
   });
   const [seatMatrix, setSeatMatrix] = useState<SeatMatrix | null>(null);
+  const [seatIndexMapping, setSeatIndexMapping] = useState<SeatMatrix | null>(null);
+  const [ids,setIds] = useState({
+    adminId:null,
+    libraryId:null
+  })
   const [attendanceRecord, setAttendanceRecord] = useState<any>(null);
   const [seatOccupancyMap, setSeatOccupancyMap] = useState<Map<number, any>>(new Map());
+  const [createAttendanceData, setCreateAttendanceData] = useState(null)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     if (response) {
       // Set seat matrix
       setSeatMatrix(response?.seatLayout?.seatLayout[0]);
-
+      setSeatIndexMapping(response?.seatLayout?.seatLayout[0]?.seatIndexMappings)
+      setIds((prev)=>({
+        ...prev,
+        adminId:response?.seatLayout?.seatLayout[0]?.adminId,
+        libraryId:response?.seatLayout?.seatLayout[0]?.libraryId
+      }))
       // Set attendance record
       setAttendanceRecord(response?.seatLayout?.attendanceRecord);
 
@@ -42,7 +55,7 @@ const AdminSeatLayout = () => {
   }, [response]);
 
  
-  console.log(seatMatrix,seatOccupancyMap,attendanceRecord,'seatMatrix')
+  console.log(seatMatrix,seatIndexMapping,ids,seatOccupancyMap, 'seatMatrix')
 
   if (isLoading) {
     return (
@@ -76,6 +89,20 @@ const AdminSeatLayout = () => {
     1002: [8, 9],
   };
 
+  const handleAttendance = (item:any) =>{
+    setIsOpen(true);
+    setCreateAttendanceData(item);
+  }
+
+  const shifts = ["MORNING", "AFTERNOON", "EVENING", "FULL_DAY"] as const;
+  // Define the type explicitly
+     type SeatStatusMap = {
+      [key in (typeof shifts)[number]]?: {
+        status: string;
+        name: string;
+      };
+    };
+
   return (
     <div>
       {/* Breadcrumb Navigation */}
@@ -93,7 +120,13 @@ const AdminSeatLayout = () => {
       {/* Seat Layout Container */}
       <div className="bg-white mt-6 dark:text-white-light dark:bg-slate-700 p-8 rounded-lg shadow-md">
         <div className="space-y-4 overflow-x-auto">
+          {!attendanceRecord&&<>
+            <>
+              <h1>No Attendace Found please create attendance</h1>
+            </>
+          </>}
           <div className="flex flex-col space-y-1 min-w-max">
+                
             {seatMatrix?.layout?.map((row: any, rowIndex: number) => (
               <div key={rowIndex} className="flex justify-center space-x-1 md:space-x-2">
                 {row?.map((seat: any) => {
@@ -101,14 +134,29 @@ const AdminSeatLayout = () => {
                   const seatRow = seatPosition ? seatPosition[0] : rowIndex + 1;
                   const seatCol = seatPosition ? seatPosition[1] : 1;
                   const seatNumber = seat?.seatNumber;
-
                   // Check if the seat is occupied
                   const isOccupied = seatOccupancyMap.has(seatNumber);
-                  const seatStatus = isOccupied
-                    ? {status:seatOccupancyMap.get(seatNumber).AFTERNOON.status, name:seatOccupancyMap.get(seatNumber).AFTERNOON.studentName}
-                    : {status:seat.status, name:null};
+
+               
+                  
+                const seatStatus: SeatStatusMap = isOccupied
+                  ? shifts.reduce<SeatStatusMap>((acc, shift) => {
+                      const seatData = seatOccupancyMap.get(seatNumber)?.[shift];
+                      if (seatData) {
+                        acc[shift] = {
+                          status: seatData.status,
+                          name: seatData.studentName,
+                        };
+                      }
+                      return acc;
+                    }, {})
+                  : {};
+                  if (isOccupied) {
+                    console.log(isOccupied, seatStatus, "seatStatus");
+                  }
+                  
                   return (
-                    <div key={seat._id} className="relative">
+                    <div key={seat._id} className="relative" onClick={() => handleAttendance(seat)}>
                       {/* Check for special seat numbers and replace with icons */}
                       {seatNumber === 1001 ? (
                         <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 min-w-[20px] rounded-lg bg-green-600 text-white text-xs">
@@ -119,36 +167,53 @@ const AdminSeatLayout = () => {
                           <FaRestroom className="text-lg md:text-xl" />
                         </div>
                       ) : (
-                        <div
-                          className={`relative flex items-center justify-center w-6 h-6 md:w-10 md:h-10 min-w-[20px] text-xs rounded-lg border-2 border-gray-300 shadow-md cursor-pointer transform transition-all duration-200 ease-in-out ${
-                            seat.isSeatPresent
-                              ? seatStatus?.status === "VACANT"
-                                ? "bg-green-400 hover:bg-green-500"
-                                : seatStatus?.status === "FILLED"
-                                ? "bg-red-400 hover:bg-red-500"
-                                : "bg-gray-400"
-                              : "opacity-0"
-                          }`}
-                        >
-                          <span className="font-semibold text-white text-[13px]">
-                            {seat.seatType === "SEAT" ? seat.seatNumber : seat.seatType}
-                          </span>
-
-                          {seatStatus?.status === "FILLED" && (
-                            <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 text-white text-xs font-bold rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
-                              {seatStatus?.name}
+                        (() => {
+                          // Get the first non-empty shift status (priority order can be customized)
+                        
+                          const activeShift = (["MORNING", "AFTERNOON", "EVENING", "FULL_DAY"] as const).find(
+                            (shift) => seatStatus?.[shift]?.status
+                          ) as keyof SeatStatusMap | undefined;
+                          
+                          const status = activeShift ? seatStatus[activeShift]?.status : "VACANT";
+                          const studentName = activeShift ? seatStatus[activeShift]?.name : null;
+                          
+                         
+                          return (
+                            <div
+                              className={`relative flex items-center justify-center w-6 h-6 md:w-10 md:h-10 min-w-[20px] text-xs rounded-lg border-2 border-gray-300 shadow-md cursor-pointer transform transition-all duration-200 ease-in-out ${
+                                seat.isSeatPresent
+                                  ? status === "VACANT"
+                                    ? "bg-green-400 hover:bg-green-500"
+                                    : status === "FILLED"
+                                    ? "bg-red-400 hover:bg-red-500"
+                                    : "bg-gray-400"
+                                  : "opacity-0"
+                              }`}
+                            >
+                              <span className="font-semibold text-white text-[13px]">
+                                {seat.seatType === "SEAT" ? seat.seatNumber : seat.seatType}
+                              </span>
+                  
+                              {status === "FILLED" && studentName && (
+                                <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 text-white text-xs font-bold rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                  {studentName}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
+                          );
+                        })()
                       )}
                     </div>
                   );
+                  
                 })}
+               
               </div>
-            ))}
+          ))}
           </div>
         </div>
       </div>
+      {isOpen&&<CreateAttendanceModal isOpen={isOpen} setIsOpen={setIsOpen} createAttendanceData={createAttendanceData} seatIndexMapping={seatIndexMapping} ids={ids}/>}
     </div>
   );
 };

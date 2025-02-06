@@ -12,7 +12,7 @@ const AdminAttendaceTable = () => {
   const [data,setData] = useState([])
 
   const { data:attendance, error, isLoading } = useGetAttendanceQuery({
-    date: "2025-02-05",
+    date: "2025-02-06",
     libraryId: "67a22f8b9b9e29e00d5f7e69",
     adminId: "67a22f8b9b9e29e00d5f7e67",
   });
@@ -50,7 +50,7 @@ const AdminAttendaceTable = () => {
               <th>Shift</th>
               <th>Seat Number</th>
               {/* <th>Sale</th> */}
-              <th>Status</th>
+              <th>Shift</th>
               <th className="!text-center">Action</th>
             </tr>
           </thead>
@@ -66,7 +66,7 @@ const AdminAttendaceTable = () => {
                 <td>{student.shift}</td>
                 <td>{student.seatNumber}</td>
                 {/* <td>{student.sale}</td> */}
-                <td>{student.status}</td>
+                <td>{student.shift}</td>
                 <td className="text-center">
                   <ul className="flex items-center justify-center gap-2">
                     <li>
