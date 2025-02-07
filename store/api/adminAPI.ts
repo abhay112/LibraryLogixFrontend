@@ -4,7 +4,7 @@ export const adminAPI = createApi({
   reducerPath: "adminAPI",
   tagTypes:["assign-attendance"],
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:4000/api/v1", // Update with your actual API base URL
+    baseUrl:  process.env.NEXT_PUBLIC_BACKEND_API_URL, // Update with your actual API base URL
   }),
   endpoints: (builder) => ({
     getStudents: builder.query({
