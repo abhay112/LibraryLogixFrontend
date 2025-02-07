@@ -1,6 +1,6 @@
 'use client';
 
-import AdminStudentTable from '@/components/students/AdminStudentTable';
+import AdminStudentTable from '@/components/admin/pages/students/AdminStudentTable';
 import { useAuth } from '@/context/AuthContext';
 import { Metadata } from 'next';
 import React, { useEffect, useState } from 'react';

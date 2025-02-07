@@ -3,7 +3,12 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useGetSeatLayoutQuery } from "@/store/api/adminAPI";
 import { FaRestroom, FaDoorOpen } from "react-icons/fa"; // For washroom and gate icons
-import CreateAttendanceModal from "../admin/CreateAttendanceModal";
+import CreateAttendanceModal from "../../modals/CreateAttendanceModal";
+import { convertToUTC } from "@/lib/dateUtils";
+import { DateSelectorModal } from "../../modals/DateSelectorModal";
+import Button from "@/components/applicationUI/Button";
+import { DateRangeSelectorModal } from "../../modals/DateSeletorWithRangeModal";
+import { DateRange } from "react-day-picker";
 
 // Defining the type for seatMap explicitly
 type SeatMap = Record<number, number[]>;
@@ -11,11 +16,14 @@ interface SeatMatrix {
   layout: any[]; // You can replace `any[]` with the actual row type if known
 }
 
-
 const AdminSeatLayout = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRangeSelector, setIsRangeSelector] = useState<Date | DateRange | undefined>(); // Track which modal to show
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   const { data: response, error, isLoading } = useGetSeatLayoutQuery({
     adminId: "67a22f8b9b9e29e00d5f7e67",
-    date:"2025-02-06"
+    date:convertToUTC(selectedDate),
   });
   const [seatMatrix, setSeatMatrix] = useState<SeatMatrix | null>(null);
   const [seatIndexMapping, setSeatIndexMapping] = useState<SeatMatrix | null>(null);
@@ -27,7 +35,10 @@ const AdminSeatLayout = () => {
   const [seatOccupancyMap, setSeatOccupancyMap] = useState<Map<number, any>>(new Map());
   const [createAttendanceData, setCreateAttendanceData] = useState(null)
   const [isOpen, setIsOpen] = useState(false)
-
+  const [stuDetails,setStuDetails] = useState({
+    name:null,
+    id:null
+  })
   useEffect(() => {
     if (response) {
       // Set seat matrix
@@ -55,8 +66,8 @@ const AdminSeatLayout = () => {
   }, [response]);
 
  
-  console.log(seatMatrix,seatIndexMapping,ids,seatOccupancyMap, 'seatMatrix')
-
+  console.log(seatMatrix,seatIndexMapping,ids,seatOccupancyMap,selectedDate, 'seatMatrix')
+  console.log(isRangeSelector,'isRangeSelector')
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -89,9 +100,14 @@ const AdminSeatLayout = () => {
     1002: [8, 9],
   };
 
-  const handleAttendance = (item:any) =>{
-    setIsOpen(true);
-    setCreateAttendanceData(item);
+  const handleAttendance = (item:any,stuDetails:any) =>{
+    if(item?.isSeatPresent){
+      setIsOpen(true);
+      setCreateAttendanceData(item);
+      setStuDetails(()=>({
+        ...stuDetails,
+      }))
+    }
   }
 
   const shifts = ["MORNING", "AFTERNOON", "EVENING", "FULL_DAY"] as const;
@@ -100,6 +116,8 @@ const AdminSeatLayout = () => {
       [key in (typeof shifts)[number]]?: {
         status: string;
         name: string;
+        id: string;
+        shift:string;
       };
     };
 
@@ -116,7 +134,10 @@ const AdminSeatLayout = () => {
           <span>Seat Layout</span>
         </li>
       </ul>
-
+      <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
+        Select Date
+      </Button>
+      {/* <DateSelector date={selectedDate} setDate={setSelectedDate} /> */}
       {/* Seat Layout Container */}
       <div className="bg-white mt-6 dark:text-white-light dark:bg-slate-700 p-8 rounded-lg shadow-md">
         <div className="space-y-4 overflow-x-auto">
@@ -137,7 +158,7 @@ const AdminSeatLayout = () => {
                   // Check if the seat is occupied
                   const isOccupied = seatOccupancyMap.has(seatNumber);
 
-               
+                  
                   
                 const seatStatus: SeatStatusMap = isOccupied
                   ? shifts.reduce<SeatStatusMap>((acc, shift) => {
@@ -146,17 +167,19 @@ const AdminSeatLayout = () => {
                         acc[shift] = {
                           status: seatData.status,
                           name: seatData.studentName,
+                          id:seatData?.studentId,
+                          shift:shift // here shift value is "MORNING , EVENING ....."
                         };
                       }
                       return acc;
                     }, {})
                   : {};
                   if (isOccupied) {
-                    console.log(isOccupied, seatStatus, "seatStatus");
+                    console.log(isOccupied, seatStatus,seat, "seatStatus");
                   }
                   
                   return (
-                    <div key={seat._id} className="relative" onClick={() => handleAttendance(seat)}>
+                    <div key={seat._id} className="relative" >
                       {/* Check for special seat numbers and replace with icons */}
                       {seatNumber === 1001 ? (
                         <div className="flex items-center justify-center w-6 h-6 md:w-10 md:h-10 min-w-[20px] rounded-lg bg-green-600 text-white text-xs">
@@ -176,11 +199,20 @@ const AdminSeatLayout = () => {
                           
                           const status = activeShift ? seatStatus[activeShift]?.status : "VACANT";
                           const studentName = activeShift ? seatStatus[activeShift]?.name : null;
+                          const studentID = activeShift ? seatStatus[activeShift]?.id : null;
+                          const shift = activeShift ? seatStatus[activeShift]?.shift : null;
+
+                         
+                          let stuDetails = {
+                            studentName: studentName,
+                            studentID: studentID,
+                            shift: shift
+                          }
+                          console.log(status, "seatStatus");
                           
                          
                           return (
-                            <div
-                              className={`relative flex items-center justify-center w-6 h-6 md:w-10 md:h-10 min-w-[20px] text-xs rounded-lg border-2 border-gray-300 shadow-md cursor-pointer transform transition-all duration-200 ease-in-out ${
+                            <div className={`relative flex items-center justify-center w-6 h-6 md:w-10 md:h-10 min-w-[20px] text-xs rounded-lg border-2 border-gray-300 shadow-md cursor-pointer transform transition-all duration-200 ease-in-out ${
                                 seat.isSeatPresent
                                   ? status === "VACANT"
                                     ? "bg-green-400 hover:bg-green-500"
@@ -189,6 +221,7 @@ const AdminSeatLayout = () => {
                                     : "bg-gray-400"
                                   : "opacity-0"
                               }`}
+                              onClick={() => handleAttendance(seat,stuDetails)}
                             >
                               <span className="font-semibold text-white text-[13px]">
                                 {seat.seatType === "SEAT" ? seat.seatNumber : seat.seatType}
@@ -213,7 +246,21 @@ const AdminSeatLayout = () => {
           </div>
         </div>
       </div>
-      {isOpen&&<CreateAttendanceModal isOpen={isOpen} setIsOpen={setIsOpen} createAttendanceData={createAttendanceData} seatIndexMapping={seatIndexMapping} ids={ids}/>}
+      {isOpen&&<CreateAttendanceModal isOpen={isOpen} setIsOpen={setIsOpen} createAttendanceData={createAttendanceData} seatIndexMapping={seatIndexMapping} ids={ids} stuDetails={stuDetails}/>}
+      {isModalOpen&&
+        <DateSelectorModal
+          isOpen={isModalOpen}
+          setIsOpen={setIsModalOpen}
+          date={selectedDate}
+          setDate={setSelectedDate}
+        />}
+        {/* {isModalOpen&&
+       <DateRangeSelectorModal
+       isOpen={isModalOpen}
+       setIsOpen={setIsModalOpen}
+       dateRange={selectedDate as unknown as DateRange}
+       setDateRange={setIsRangeSelector}
+     />} */}
     </div>
   );
 };

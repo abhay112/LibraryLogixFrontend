@@ -1,29 +1,47 @@
-"use client";
-import "tippy.js/dist/tippy.css";
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { useGetAttendanceQuery, useGetSeatLayoutQuery } from "@/store/api/adminAPI";
-import IconTrashLines from "../icon/icon-trash-lines";
+'use client'
+import IconPencil from "@/components/icon/icon-pencil";
+import IconSettings from "@/components/icon/icon-settings";
+import IconTrashLines from "@/components/icon/icon-trash-lines";
+import { calculateTotalTime, convertToUTC, formatDateOrTime } from "@/lib/dateUtils";
+import { useGetAttendanceQuery } from "@/store/api/adminAPI";
 import Tippy from "@tippyjs/react";
-import IconPencil from "../icon/icon-pencil";
-import IconSettings from "../icon/icon-settings";
+import { Link } from "lucide-react";
+import { useState, useEffect } from "react";
+import { DateSelectorModal } from "../../modals/DateSelectorModal";
+
+interface AttendanceData {
+  id: string;
+  studentName: string;
+  shift: string;
+  seatNumber: string;
+  checkInTime: string;
+  checkOutTime: string;
+  totalHours: number;
+  remark: string;
+}
+
+interface AttendanceResponse {
+  attendance: AttendanceData[];
+}
 
 const AdminAttendaceTable = () => {
-  const [data,setData] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [data, setData] = useState<AttendanceResponse | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const { data:attendance, error, isLoading } = useGetAttendanceQuery({
-    date: "2025-02-06",
-    libraryId: "67a22f8b9b9e29e00d5f7e69",
+  const { data: attendance, error, isLoading } = useGetAttendanceQuery({
+    date: convertToUTC(selectedDate),
     adminId: "67a22f8b9b9e29e00d5f7e67",
   });
   
-  useEffect(()=>{
-    if(attendance){
-        setData(attendance?.data?.attendanceRecord?.filledSeats);
+  useEffect(() => {
+    if (attendance) {
+      setData(attendance?.data); // Assuming attendance is of type AttendanceResponse
     }
-  },[attendance]);
+  }, [attendance]);
 
-  console.log(data)
+  console.log(data, attendance, 'attendance data');
+  
   if (isLoading) return <p>Loading attendance...</p>;
   if (error) return <p>Error fetching students</p>;
 
@@ -48,14 +66,16 @@ const AdminAttendaceTable = () => {
               </th>
               <th>Name</th>
               <th>Shift</th>
-              <th>Seat Number</th>
-              {/* <th>Sale</th> */}
-              <th>Shift</th>
+              <th>Seat</th>
+              <th>Check IN</th>
+              <th>Check Out</th>
+              <th>Total Time</th>
+              <th>Message</th>
               <th className="!text-center">Action</th>
             </tr>
           </thead>
           <tbody>
-            {data?.map((student:any) => (
+            {data?.attendance?.map((student) => (
               <tr key={student.id}>
                 <td>
                   <input type="checkbox" className="form-checkbox" />
@@ -65,8 +85,10 @@ const AdminAttendaceTable = () => {
                 </td>
                 <td>{student.shift}</td>
                 <td>{student.seatNumber}</td>
-                {/* <td>{student.sale}</td> */}
-                <td>{student.shift}</td>
+                <td>{formatDateOrTime(student.checkInTime,'time')}</td>
+                <td>{formatDateOrTime(student.checkOutTime,'time')}</td>
+                <td>{calculateTotalTime(student.checkInTime,student.checkOutTime)}</td>
+                <td>{student?.remark}</td>
                 <td className="text-center">
                   <ul className="flex items-center justify-center gap-2">
                     <li>
@@ -97,8 +119,15 @@ const AdminAttendaceTable = () => {
           </tbody>
         </table>
       </div>
+      {isModalOpen &&
+        <DateSelectorModal
+          isOpen={isModalOpen}
+          setIsOpen={setIsModalOpen}
+          date={selectedDate}
+          setDate={setSelectedDate}
+        />}
     </div>
   );
 };
 
-export default AdminAttendaceTable;
+export default AdminAttendaceTable

@@ -1,4 +1,4 @@
-import AdminSeatLayout from '@/components/seatLayout/AdminSeatLayout';
+import AdminSeatLayout from '@/components/admin/pages/seatLayout/AdminSeatLayout';
 import { Metadata } from 'next';
 import React from 'react';
 

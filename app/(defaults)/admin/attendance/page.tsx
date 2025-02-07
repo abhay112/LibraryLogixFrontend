@@ -1,5 +1,4 @@
-import AdminAttendaceTable from '@/components/attendance/AdminSeatLayout';
-import AdminSeatLayout from '@/components/seatLayout/AdminSeatLayout';
+import AdminAttendaceTable from '@/components/admin/pages/attendance/AdminAttendaneLayout';
 import { Metadata } from 'next';
 import React from 'react';
 

@@ -1,4 +1,5 @@
-import { useAssignSeatMutation, useGetStudentsQuery } from "@/store/api/adminAPI";
+import InputBox from "@/components/applicationUI/InputBox";
+import { useAssignSeatMutation, useGetStudentsQuery, useVacantSeatMutation } from "@/store/api/adminAPI";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, Dispatch, SetStateAction, useState } from "react";
 import Select from "react-select";
@@ -9,6 +10,7 @@ interface CreateAttendanceModalProps {
   createAttendanceData: any;
   seatIndexMapping: any;
   ids: any;
+  stuDetails:any;
 }
 
 const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
@@ -17,6 +19,7 @@ const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
   createAttendanceData,
   seatIndexMapping,
   ids,
+  stuDetails
 }) => {
   const { data: students } = useGetStudentsQuery(undefined, {
     selectFromResult: ({ data }) => ({
@@ -31,6 +34,8 @@ const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
   });
 
   const [assignSeat, { isLoading, isError }] = useAssignSeatMutation();
+  const [vacantSeat, { isLoading:vacantSeatLoading }] = useVacantSeatMutation();
+
 
   // State to store selected student details
   const [selectedStudent, setSelectedStudent] = useState<{
@@ -59,11 +64,36 @@ const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
 
       const response = await assignSeat(seatData).unwrap();
       console.log("Seat assigned successfully:", response);
-      setIsOpen(false);
+      if(!isLoading){
+        setIsOpen(false);
+      }
     } catch (error) {
       console.error("Failed to assign seat:", error);
     }
   };
+
+  const handleVacantSeat = async () => {
+    try {
+      const seatData = {
+        adminId: ids?.adminId,
+        shift: stuDetails?.shift?.toUpperCase(),
+        seatNumber: createAttendanceData?.seatNumber,
+        studentName: stuDetails?.studentName,
+      };
+
+      const response = await vacantSeat(seatData).unwrap();
+      console.log("Seat assigned successfully:", response);
+      if(!isLoading){
+        setIsOpen(false);
+      }
+    } catch (error) {
+      console.error("Failed to assign seat:", error);
+    }
+  };
+  const defaultStudent = students.find((student: { label: string; }) => student.label === 'Maggie Durgan MD');
+
+
+  console.log(createAttendanceData,ids,seatIndexMapping,stuDetails,defaultStudent,'create attendace modal')
 
   return (
     <div className="mb-5" onClick={() => setIsOpen(true)}>
@@ -85,14 +115,16 @@ const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
               <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg my-8 text-black dark:text-white-dark">
                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
                   <h5 className="font-bold text-lg">
-                    Assign Seat No {createAttendanceData?.seatNumber}
+                    {`${createAttendanceData?.status === "FILLED"?"Vacent":"Assign"} Seat No ${createAttendanceData?.seatNumber}`}
                   </h5>
                 </div>
                 <div className="p-5">
                   <div className="mb-5">
+                    <label>Student Name</label>
                     <Select
                       placeholder="Select a student"
                       options={students}
+                      value={stuDetails?.studentID?{label:stuDetails?.studentName, value:stuDetails?.studentID}:{label:selectedStudent?.studentName,value:selectedStudent?.studentName}}
                       onChange={(selectedOption:any) => {
                         if (selectedOption) {
                           setSelectedStudent({
@@ -102,8 +134,13 @@ const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
                           });
                         }
                       }}
+
                     />
                   </div>
+                  {stuDetails?.studentID&&
+                  <div>
+                    <InputBox label={"Shift"} id = {stuDetails?.studentID} value= {stuDetails?.shift}/>
+                  </div>}
                   <div className="flex justify-end items-center mt-8">
                     <button
                       onClick={() => setIsOpen(false)}
@@ -114,11 +151,11 @@ const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
                     </button>
                     <button
                       type="button"
-                      onClick={handleAssignSeat}
+                      onClick={stuDetails?.studentName?handleVacantSeat:handleAssignSeat}
                       className="btn btn-primary ltr:ml-4 rtl:mr-4"
                       disabled={isLoading}
                     >
-                      {isLoading ? "Assigning..." : "Save"}
+                      {isLoading ? "Assigning..." : stuDetails?.studentName?"Vacant Seat":"Assign Seat"}
                     </button>
                   </div>
                 </div>
