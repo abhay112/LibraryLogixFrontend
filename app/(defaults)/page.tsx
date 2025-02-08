@@ -1,20 +1,12 @@
 'use client';
-
-import { Metadata } from "next";
 import React, { useEffect, useState } from "react";
 import { Users, Calendar, TableColumnsSplit, IndianRupee, MessageSquareText , UserX, TentTree, FolderLock, HandCoins  } from "lucide-react";
 import DashboardCard from "@/components/applicationUI/DashboardCard";
 import Dropdown from "@/components/dropdown";
 import IconHorizontalDots from "@/components/icon/icon-horizontal-dots";
 import ReactApexChart from 'react-apexcharts';
-import { useSelector } from "react-redux";
-import { IRootState } from "@/store";
-
-
 
 const MainDashboard = () => {
-  const isDark = useSelector((state: IRootState) => state.themeConfig.theme === 'dark' || state.themeConfig.isDarkMode);
-  const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl';
   const uniqueVisitorSeries: any = {
     series: [
         {
@@ -67,7 +59,7 @@ const MainDashboard = () => {
             },
         },
         grid: {
-            borderColor: isDark ? '#191e3a' : '#e0e6ed',
+            borderColor: false ? '#191e3a' : '#e0e6ed',
             padding: {
                 left: 20,
                 right: 20,
@@ -77,20 +69,20 @@ const MainDashboard = () => {
             categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             axisBorder: {
                 show: true,
-                color: isDark ? '#3b3f5c' : '#e0e6ed',
+                color: false ? '#3b3f5c' : '#e0e6ed',
             },
         },
         yaxis: {
             tickAmount: 6,
-            opposite: isRtl ? true : false,
+            opposite: false ? true : false,
             labels: {
-                offsetX: isRtl ? -10 : 0,
+                offsetX: false ? -10 : 0,
             },
         },
         fill: {
             type: 'gradient',
             gradient: {
-                shade: isDark ? 'dark' : 'light',
+                shade: false ? 'dark' : 'light',
                 type: 'vertical',
                 shadeIntensity: 0.3,
                 inverseColors: false,
@@ -131,7 +123,7 @@ const MainDashboard = () => {
           <DashboardCard key={index} icon={card.icon} title={card.title} color={card.color} />
         ))}
       </div>
-      <div className="mb-6 grid gap-6 lg:grid-cols-3 mt-4">
+      {/* <div className="mb-6 grid gap-6 lg:grid-cols-3 mt-4">
           <div className="panel h-full p-0 lg:col-span-2">
               <div className="mb-5 flex items-start justify-between border-b border-white-light p-5  dark:border-[#1b2e4b] dark:text-white-light">
                   <h5 className="text-lg font-semibold ">Student Attendance</h5>
@@ -159,7 +151,7 @@ const MainDashboard = () => {
 
               {isMounted && <ReactApexChart options={uniqueVisitorSeries.options} series={uniqueVisitorSeries.series} type="bar" height={360} width={'100%'} />}
           </div>
-      </div>
+      </div> */}
     </div>
   );
 };
