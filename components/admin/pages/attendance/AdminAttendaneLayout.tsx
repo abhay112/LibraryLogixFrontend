@@ -8,6 +8,7 @@ import Tippy from "@tippyjs/react";
 import { Link } from "lucide-react";
 import { useState, useEffect } from "react";
 import { DateSelectorModal } from "../../modals/DateSelectorModal";
+import Button from "@/components/applicationUI/Button";
 
 interface AttendanceData {
   id: string;
@@ -57,6 +58,9 @@ const AdminAttendaceTable = () => {
           <span>Attendance </span>
         </li>
       </ul>
+      <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
+        Select Date
+      </Button>
       <div className="table-responsive flex mb-5 bg-white mt-4 dark:text-white-light dark:bg-slate-700">
         <table>
           <thead>

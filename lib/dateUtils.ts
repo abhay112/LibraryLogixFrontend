@@ -10,7 +10,6 @@ export function convertToUTC(date: Date): string {
 }
 export const formatDateOrTime = (dateTime: string, type: "date" | "time"): string => {
   const date = new Date(dateTime);
-
   if (isNaN(date.getTime())) {
     return "N/A"; // Return a default message if the date is invalid
   }

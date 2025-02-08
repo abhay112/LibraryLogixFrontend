@@ -29,11 +29,11 @@ const Tables = () => {
   if (loading) return <p>Loading...</p>; 
 
   return (
-    <ProtectedRoute>
+    // <ProtectedRoute>
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-1">
         <AdminStudentTable />
       </div>
-    </ProtectedRoute>
+    // </ProtectedRoute>
   );
 };
 

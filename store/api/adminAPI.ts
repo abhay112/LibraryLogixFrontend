@@ -18,6 +18,11 @@ export const adminAPI = createApi({
       providesTags:["assign-attendance"]
     }),
 
+    getSeatLayoutByShift: builder.query({
+      query: ({date, adminId, shift}) => `/admin/seatLayout?adminId=${adminId}&date=${date}&shift=${shift}`,
+      providesTags:["assign-attendance"]
+    }),
+
     getAttendance: builder.query({
       query: ({ date, adminId }) =>
         `/admin/attendance/${date}/${adminId}`,
@@ -44,4 +49,4 @@ export const adminAPI = createApi({
   }),
 });
 
-export const { useGetStudentsQuery, useGetSeatLayoutQuery, useGetAttendanceQuery, useAssignSeatMutation , useVacantSeatMutation} = adminAPI;
+export const { useGetStudentsQuery, useGetSeatLayoutQuery, useGetSeatLayoutByShiftQuery, useGetAttendanceQuery, useAssignSeatMutation , useVacantSeatMutation} = adminAPI;
