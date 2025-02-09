@@ -9,28 +9,32 @@ import { DateSelectorModal } from "../../modals/DateSelectorModal";
 import Button from "@/components/applicationUI/Button";
 import { DateRangeSelectorModal } from "../../modals/DateSeletorWithRangeModal";
 import { DateRange } from "react-day-picker";
+import CalendarUI from "@/components/applicationUI/CalendarUI";
+import SeatLayoutForCurrentDateCmp from "./SeatLayoutForCurrentDateCmp";
+import SeatLayoutForPastDateCmp from "./SeatLayoutForPastDateCmp";
 
 // Defining the type for seatMap explicitly
 type SeatMap = Record<number, number[]>;
 interface SeatMatrix {
-  layout: any[]; // You can replace `any[]` with the actual row type if known
+  layout: any[];
 }
 
 const AdminSeatLayout = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isRangeSelector, setIsRangeSelector] = useState<Date | DateRange | undefined>(); // Track which modal to show
-  const [selectedDate, setSelectedDate] = useState(new Date());
-
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedShift, setSelectedShift] = useState<string | null>(null);
   const { data: response, error, isLoading } = useGetSeatLayoutQuery({
     adminId: "67a22f8b9b9e29e00d5f7e67",
-    date:convertToUTC(selectedDate),
+    // date:convertToUTC(selectedDate),
+    date:selectedDate||convertToUTC(new Date()),
   });
-
-  const { data: shiftLayout} = useGetSeatLayoutByShiftQuery({
-    adminId: "67a22f8b9b9e29e00d5f7e67",
-    date:convertToUTC(selectedDate),
-    shift:"EVENING"
-  });
+  const { data: shiftLayout } = useGetSeatLayoutByShiftQuery(
+    {
+      adminId: "67a22f8b9b9e29e00d5f7e67",
+      date:selectedDate||convertToUTC(new Date()),
+      shift: selectedShift?.toUpperCase() ?? "",
+    },
+    {skip: !selectedDate || !selectedShift }
+  );
   const [seatMatrix, setSeatMatrix] = useState<SeatMatrix | null>(null);
   const [seatIndexMapping, setSeatIndexMapping] = useState<SeatMatrix | null>(null);
   const [ids,setIds] = useState({
@@ -71,9 +75,14 @@ const AdminSeatLayout = () => {
     }
   }, [response]);
 
+
+  const handleSelectionChange = (date: string, shift: string) => {
+    setSelectedDate(date);
+    setSelectedShift(shift);
+  };
  
   console.log(seatMatrix,seatIndexMapping,ids,seatOccupancyMap,selectedDate, 'seatMatrix')
-  console.log(isRangeSelector,'isRangeSelector')
+  console.log(selectedDate,selectedShift,shiftLayout,   'isRangeSelector')
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -126,11 +135,12 @@ const AdminSeatLayout = () => {
         shift:string;
       };
     };
+    console.log(selectedDate !== convertToUTC(new Date()),selectedDate, convertToUTC(new Date()), 'selectedDate !== convertToUTC(new Date())')
 
   return (
-    <div>
+    <div className="bg-white  dark:text-white-light dark:bg-slate-700 p-2  lg:pb-8">
       {/* Breadcrumb Navigation */}
-      <ul className="flex space-x-2 rtl:space-x-reverse mb-6">
+      <ul className="flex space-x-2 rtl:space-x-reverse my-4">
         <li>
           <Link href="/" className="text-primary hover:underline">
             Dashboard
@@ -140,133 +150,11 @@ const AdminSeatLayout = () => {
           <span>Seat Layout</span>
         </li>
       </ul>
-      <Button variant="primary" size="md" onClick={() => setIsModalOpen(true)}>
-        Select Date
-      </Button>
-      {/* <DateSelector date={selectedDate} setDate={setSelectedDate} /> */}
-      {/* Seat Layout Container */}
-      <div className="bg-white mt-6 dark:text-white-light dark:bg-slate-700 p-4 lg:pb-8 rounded-lg shadow-md">
-        <div className="space-y-4 overflow-x-auto">
-          {!attendanceRecord&&<>
-            <>
-              <h1>No Attendace Found please create attendance</h1>
-            </>
-          </>}
-          <div className="flex flex-col space-y-1 min-w-max">
-                
-            {seatMatrix?.layout?.map((row: any, rowIndex: number) => (
-              <div key={rowIndex} className="flex justify-center space-x-1 md:space-x-2">
-                {row?.map((seat: any) => {
-                  const seatNumber = seat?.seatNumber;
-                  // Check if the seat is occupied
-                  const isOccupied = seatOccupancyMap.has(seatNumber);
-
-                  const seatStatus: SeatStatusMap = isOccupied
-                  ? shifts.reduce<SeatStatusMap>((acc, shift) => {
-                      const seatData = seatOccupancyMap.get(seatNumber)?.[shift];
-                      if (seatData) {
-                        acc[shift] = {
-                          status: seatData.status,
-                          name: seatData.studentName,
-                          id:seatData?.studentId,
-                          shift:shift // here shift value is "MORNING , EVENING ....."
-                        };
-                      }
-                      return acc;
-                    }, {})
-                  : {};
-                  if (isOccupied) {
-                    console.log(isOccupied, seatStatus,seat, "seatStatus");
-                  }
-                  return (
-                    <div key={seat._id} className="m-0" >
-                      {/* Check for special seat numbers and replace with icons */}
-                      {seatNumber === 1001 ? (
-                        <div className="flex items-center justify-center w-4 h-4 md:w-6 md:h-6 min-w-[20px] rounded-lg bg-green-600 text-white text-xs">
-                          <FaDoorOpen className="text-sm" />
-                        </div>
-                      ) : seatNumber === 1002 ? (
-                        <div className="flex items-center justify-center w-4 h-4 md:w-6 md:h-6 min-w-[20px] rounded-lg bg-blue-600 text-white text-xs">
-                          <FaRestroom className="text-sm" />
-                        </div>
-                      ) : (
-                        (() => {
-                          // Get the first non-empty shift status (priority order can be customized)
-                        
-                          const activeShift = (["MORNING", "AFTERNOON", "EVENING", "FULL_DAY"] as const).find(
-                            (shift) => seatStatus?.[shift]?.status
-                          ) as keyof SeatStatusMap | undefined;
-                          
-                          const status = activeShift ? seatStatus[activeShift]?.status : "VACANT";
-                          const studentName = activeShift ? seatStatus[activeShift]?.name : null;
-                          const studentID = activeShift ? seatStatus[activeShift]?.id : null;
-                          const shift = activeShift ? seatStatus[activeShift]?.shift : null;
-
-                         
-                          let stuDetails = {
-                            studentName: studentName,
-                            studentID: studentID,
-                            shift: shift
-                          }
-                          console.log(status, "seatStatus");
-                          
-                         
-                          return (
-                            <div className={`relative  flex items-center justify-center w-4 h-4 md:w-6 md:h-6 min-w-[15px] text-xs rounded-lg shadow-md cursor-pointer transform transition-all duration-200 ease-in-out ${
-                                seat.isSeatPresent
-                                  ? status === "VACANT"
-                                    ? "bg-green-400 hover:bg-green-500"
-                                    : status === "FILLED"
-                                    ? "bg-red-400 hover:bg-red-500"
-                                    : "bg-gray-400"
-                                  : "opacity-0"
-                              }`}
-                              onClick={() => handleAttendance(seat,stuDetails)}
-                            >
-                              <span className="font-semibold text-white text-[8px]">
-                                {seat.seatType === "SEAT" ? seat.seatNumber : seat.seatType}
-                              </span>
-                  
-                              {status === "FILLED" && studentName && (
-                                <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 text-white text-xs font-bold rounded-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
-                                  {studentName}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })()
-                      )}
-                    </div>
-                  );
-                })}
-               
-              </div>
-          ))}
-          </div>
-        </div>
-      </div>
-      <div className="mt-4">
-        <button className="rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
-            Seat History
-        </button>
-     </div>
-      {isOpen&&<CreateAttendanceModal isOpen={isOpen} setIsOpen={setIsOpen} createAttendanceData={createAttendanceData} seatIndexMapping={seatIndexMapping} ids={ids} stuDetails={stuDetails}/>}
-      {isModalOpen&&
-        <DateSelectorModal
-          isOpen={isModalOpen}
-          setIsOpen={setIsModalOpen}
-          date={selectedDate}
-          setDate={setSelectedDate}
-        />}
-        {/* {isModalOpen&&
-       <DateRangeSelectorModal
-       isOpen={isModalOpen}
-       setIsOpen={setIsModalOpen}
-       dateRange={selectedDate as unknown as DateRange}
-       setDateRange={setIsRangeSelector}
-     />} */}
-     
-    
+      <CalendarUI onSelectionChange={handleSelectionChange} />
+      {selectedDate === convertToUTC(new Date())?
+        <SeatLayoutForCurrentDateCmp selectedDate={selectedDate}/>:
+        <SeatLayoutForPastDateCmp selectedDate={selectedDate} selectedShift={selectedShift}/>
+      }
     </div>
   );
 };

@@ -108,7 +108,7 @@ const MainDashboard = () => {
     { title: "Attendance", icon: Calendar, color:'text-cyan-500' },
     { title: "Seats", icon: TableColumnsSplit, color:'text-amber-500' },
     { title: "Fees", icon: IndianRupee, color:'text-green-500' },
-    { title: "Remark", icon: MessageSquareText, color:'text-indigo-500' },
+    { title: "Enquiry", icon: MessageSquareText, color:'text-indigo-500' },
     { title: "Holidays", icon: TentTree, color:'text-orange-400' },
     { title: "Inactive Students", icon: UserX, color:'text-blue-600' },
     { title: "Fines", icon: HandCoins, color:'text-orange-400' },

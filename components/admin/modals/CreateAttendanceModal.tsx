@@ -79,6 +79,7 @@ const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
         shift: stuDetails?.shift?.toUpperCase(),
         seatNumber: createAttendanceData?.seatNumber,
         studentName: stuDetails?.studentName,
+        studentId: stuDetails?.studentID,
       };
 
       const response = await vacantSeat(seatData).unwrap();
@@ -94,6 +95,7 @@ const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
 
 
   console.log(createAttendanceData,ids,seatIndexMapping,stuDetails,defaultStudent,'create attendace modal')
+  console.log(stuDetails,'stuDetails')
 
   return (
     <div className="mb-5" onClick={() => setIsOpen(true)}>

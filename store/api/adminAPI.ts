@@ -26,6 +26,7 @@ export const adminAPI = createApi({
     getAttendance: builder.query({
       query: ({ date, adminId }) =>
         `/admin/attendance/${date}/${adminId}`,
+      providesTags:["assign-attendance"]
     }),
 
     assignSeat: builder.mutation({
