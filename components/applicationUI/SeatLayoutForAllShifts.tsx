@@ -3,25 +3,16 @@ import React, { useEffect, useState } from "react";
 import { useGetSeatLayoutByShiftQuery } from "@/store/api/adminAPI";
 import { FaRestroom, FaDoorOpen } from "react-icons/fa"; // For washroom and gate icons
 import { convertToUTC } from "@/lib/dateUtils";
+import { response } from "@/lib/data";
 
 interface SeatMatrix {
   layout: any[];
 }
 
-type SeatLayoutForPastDateCmpProps = {
-  selectedDate: string | null;
-  selectedShift: string | null;
-};
-
-const SeatLayoutForPastDateCmp: React.FC<SeatLayoutForPastDateCmpProps> = ({ selectedDate, selectedShift }) => {
-  const { data: response, isLoading } = useGetSeatLayoutByShiftQuery(
-    {
-      adminId: "67a22f8b9b9e29e00d5f7e67",
-      date: selectedDate || convertToUTC(new Date()),
-      shift: selectedShift?.toUpperCase() ?? "",
-    },
-    { skip: !selectedDate || !selectedShift }
-  );
+type SeatLayoutForAllShiftsCmp = {
+    shift: string | null;
+  };
+const SeatLayoutForAllShiftsCmp: React.FC<SeatLayoutForAllShiftsCmp> = ({  shift }) => {
 
   const [seatMatrix, setSeatMatrix] = useState<SeatMatrix | null>(null);
   const [seatOccupancyMap, setSeatOccupancyMap] = useState<Map<number, any>>(new Map());
@@ -41,41 +32,36 @@ const SeatLayoutForPastDateCmp: React.FC<SeatLayoutForPastDateCmpProps> = ({ sel
 
   console.log(seatOccupancyMap,seatMatrix,'seatMatrix')
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <p className="text-lg font-semibold">Loading seat layout...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-white dark:text-white-light dark:bg-slate-700 p-2 lg:pb-8 rounded-lg shadow-md">
+    <div className="bg-white dark:text-white-light dark:bg-slate-700 p-2 lg:pb-8 rounded-lg ">
       <div className="space-y-1 overflow-x-auto">
         {!seatMatrix?.layout?.length && (
           <h1>No Attendance Found. Please create attendance.</h1>
         )}
+        <div className="flex justify-between mb-2  pb-2">
+            <h5 className="text-xs font-semibold font-nunito">{shift}</h5>
+        </div>
         <div className="flex flex-col space-y-1 min-w-max">
           {seatMatrix?.layout?.map((row: any, rowIndex: number) => (
-            <div key={rowIndex} className="flex justify-center space-x-1 md:space-x-2">
+            <div key={rowIndex} className="flex justify-center space-x-1 md:space-x-1">
               {row?.map((seat: any) => {
                 const seatData = seatOccupancyMap.get(seat.seatNumber);
                 return (
                   <div key={seat._id} className="m-0 relative">
                     {seat.seatNumber === 1001 ? (
-                      <div className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 bg-green-600 text-white rounded-lg">
-                        <FaDoorOpen className="text-sm" />
+                      <div className="flex items-center justify-center w-3 h-3 md:w-4 md:h-4 bg-green-600 text-white rounded-lg">
+                        <FaDoorOpen className="text-xs" />
                       </div>
                     ) : seat.seatNumber === 1002 ? (
-                      <div className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 bg-blue-600 text-white rounded-lg">
-                        <FaRestroom className="text-sm" />
+                      <div className="flex items-center justify-center w-3 h-3 md:w-4 md:h-4 bg-blue-600 text-white rounded-lg">
+                        <FaRestroom className="text-xs" />
                       </div>
                     ) : (
                       <div
-                        className={`flex items-center justify-center w-6 h-6 md:w-8 md:h-8 text-xs  cursor-pointer transition-all duration-200 ease-in-out 
+                        className={`flex items-center justify-center w-3 h-3 md:w-4 md:h-4 text-xs  cursor-pointer transition-all duration-200 ease-in-out 
                           ${seatData ? "bg-red-400 hover:bg-red-500 rounded-lg shadow-md" :seat?.isSeatPresent?"bg-gray-400 rounded-lg shadow-md ": "bg-white "}`}
                       >
-                        <span className="font-semibold text-white text-[10px]">
+                        <span className="font-semibold text-white text-[8px]">
                           {seat.seatType === "SEAT" ? seat.seatNumber : seat.seatType}
                         </span>
                         {seatData && (
@@ -96,4 +82,4 @@ const SeatLayoutForPastDateCmp: React.FC<SeatLayoutForPastDateCmpProps> = ({ sel
   );
 };
 
-export default SeatLayoutForPastDateCmp;
+export default SeatLayoutForAllShiftsCmp;
