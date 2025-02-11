@@ -1,9 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+import { useGetAdminStatsQuery } from "@/store/api/adminAPI";
+import { convertToUTC } from "@/lib/dateUtils";
 
 const AttendanceDonutChart: React.FC = () => {
-  const [series, setSeries] = useState<number[]>([35.1, 23.5, 2.4]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [series, setSeries] = useState<number[]>([0, 0, 0]);
+
+  const { data: response, error, isLoading } = useGetAdminStatsQuery({
+    adminId: "67a22f8b9b9e29e00d5f7e67",
+    date:selectedDate||convertToUTC(new Date()),
+  });
+
+  useEffect(() => {
+    if (response && response.data) {
+      setSeries([response.data?.totalStudents,response.data?.presentCount, response.data?.absentCount]);
+    }
+  }, [response]);
+  
 
   const chartOptions: ApexOptions = {
     // colors: ["#4CAF50", "#FFC107", "#F44336"], 
@@ -45,6 +60,8 @@ const AttendanceDonutChart: React.FC = () => {
     },
     
   };
+
+  console.log(response,'responseresponse')
 
   return (
     <div className="max-w-sm w-full bg-white rounded-lg shadow-sm p-4">

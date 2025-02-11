@@ -1,8 +1,5 @@
 import Dropdown from '@/components/dropdown';
 import React, { useEffect, useState } from "react";
-import AttendanceDonutChart from "@/components/applicationUI/AttendanceDonutChart";
-import FeesDonutChart from "@/components/applicationUI/FeesDonutChart";
-import SeatLayoutForAllShiftsCmp from "@/components/applicationUI/SeatLayoutForAllShifts";
 import IconServer from "@/components/icon/icon-server";
 import IconHorizontalDots from "@/components/icon/icon-horizontal-dots";
 import IconPlus from "@/components/icon/icon-plus";

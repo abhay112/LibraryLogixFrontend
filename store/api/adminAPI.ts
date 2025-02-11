@@ -46,8 +46,21 @@ export const adminAPI = createApi({
       }),
       invalidatesTags:["assign-attendance"]
     }),
+
+    //fees
+    getFees: builder.query({
+      query: ({ date, adminId,status }) =>
+        `/admin/fees?adminId=${adminId}&date=${date}&status=${status}`,
+      providesTags:["assign-attendance"]
+    }),
+
+    //stats
+    getAdminStats: builder.query({
+      query: ({ date, adminId }) => `/admin/stats?adminId=${adminId}&date=${date}`,
+      providesTags:["assign-attendance"]
+    }),
     
   }),
 });
 
-export const { useGetStudentsQuery, useGetSeatLayoutQuery, useGetSeatLayoutByShiftQuery, useGetAttendanceQuery, useAssignSeatMutation , useVacantSeatMutation} = adminAPI;
+export const { useGetStudentsQuery, useGetSeatLayoutQuery, useGetSeatLayoutByShiftQuery, useGetAttendanceQuery, useAssignSeatMutation , useVacantSeatMutation , useGetAdminStatsQuery,  useGetFeesQuery} = adminAPI;
