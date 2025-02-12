@@ -154,7 +154,7 @@ const Header = () => {
                                 <Link href="/">{t('sales')}</Link>
                             </li> */}
                             <li>
-                                <Link href="/admin/dashboard">{t('analyticsa')}</Link>
+                                <Link href="/admin/dashboard">{t('analytica')}</Link>
                             </li>
                             <li>
                                 <Link href="/finance">{t('finance')}</Link>

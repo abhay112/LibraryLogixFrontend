@@ -18,15 +18,15 @@ const Tables = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user === null) {
-      router.push('/login');
-    } else {
-      setLoading(false);
-    }
-  }, [user, router]);
+  // useEffect(() => {
+  //   if (user === null) {
+  //     router.push('/login');
+  //   } else {
+  //     setLoading(false);
+  //   }
+  // }, [user, router]);
 
-  if (loading) return <p>Loading...</p>; 
+  // if (loading) return <p>Loading...</p>; 
 
   return (
     // <ProtectedRoute>

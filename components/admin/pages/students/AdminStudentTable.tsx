@@ -7,15 +7,25 @@ import "tippy.js/dist/tippy.css";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useGetStudentsQuery } from "@/store/api/adminAPI";
+import StudentModal from "./StudentModal";
+
 
 const AdminStudentTable = () => {
   const { data: students, error, isLoading } = useGetStudentsQuery(null);
-  const [data,setData] = useState([])
+  const [data,setData] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [studentData, setStudentData] = useState(null);
   useEffect(()=>{
     if(students){
         setData(students?.data)
     }
   },[students])
+
+  const handleModalOpen = (data:any) =>{
+    setStudentData(data);
+    setIsModalOpen(true);
+  }
+
 
   if (isLoading) return <p>Loading students...</p>;
   if (error) return <p>Error fetching students</p>;
@@ -32,6 +42,8 @@ const AdminStudentTable = () => {
           <span>Students</span>
         </li>
       </ul>
+      <button type="submit" className="btn btn-primary w-full" onClick={()=>{handleModalOpen(null)}}>Create Students</button>
+
       <div className="table-responsive flex mb-5 bg-white mt-4 dark:text-white-light dark:bg-slate-700">
         <table>
           <thead>
@@ -44,7 +56,7 @@ const AdminStudentTable = () => {
               <th>Mobile</th>
               <th>Shift</th>
               <th>Status</th>
-              <th className="!text-center">Action</th>
+              <th className="!text-center">Edit</th>
             </tr>
           </thead>
           <tbody>
@@ -59,27 +71,13 @@ const AdminStudentTable = () => {
                 <td>{student?.email}</td>
                 <td>{student?.mobile}</td>
                 <td className="uppercase">{student?.shift}</td>
-                <td>{student?.active?"Active":"INACTIVE"}</td>
+                <td>{student?.active?"Active":"InActive"}</td>
                 <td className="text-center">
-                  <ul className="flex items-center justify-center gap-2">
-                    <li>
-                      <Tippy content="Settings">
-                        <button type="button">
-                          <IconSettings className="h-5 w-5 text-primary" />
-                        </button>
-                      </Tippy>
-                    </li>
+                  <ul className="flex items-center justify-center gap-4">
                     <li>
                       <Tippy content="Edit">
-                        <button type="button">
+                        <button type="button" onClick={()=>{handleModalOpen(student)}}>
                           <IconPencil className="text-success" />
-                        </button>
-                      </Tippy>
-                    </li>
-                    <li>
-                      <Tippy content="Delete">
-                        <button type="button">
-                          <IconTrashLines className="text-danger" />
                         </button>
                       </Tippy>
                     </li>
@@ -89,6 +87,7 @@ const AdminStudentTable = () => {
             ))}
           </tbody>
         </table>
+        <StudentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} studentData={studentData} />
       </div>
     </div>
   );

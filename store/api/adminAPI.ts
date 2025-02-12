@@ -8,9 +8,27 @@ export const adminAPI = createApi({
   }),
   endpoints: (builder) => ({
     getStudents: builder.query({
-      query: (arg) =>
+      query: () =>
          `/admin/students?type=notPresent`,
       providesTags:["assign-attendance"]
+    }),
+
+    updateStudent: builder.mutation({
+      query: (stuData) => ({
+        url: `/admin/students/${stuData?.id}`,
+        method: "PUT",
+        body: stuData,
+      }),
+      invalidatesTags:["assign-attendance"]
+    }),
+
+    createStudent: builder.mutation({
+      query: (stuData) => ({
+        url: `/admin/students`,
+        method: "POST",
+        body: stuData,
+      }),
+      invalidatesTags:["assign-attendance"]
     }),
 
     getSeatLayout: builder.query({
@@ -63,4 +81,4 @@ export const adminAPI = createApi({
   }),
 });
 
-export const { useGetStudentsQuery, useGetSeatLayoutQuery, useGetSeatLayoutByShiftQuery, useGetAttendanceQuery, useAssignSeatMutation , useVacantSeatMutation , useGetAdminStatsQuery,  useGetFeesQuery} = adminAPI;
+export const { useGetStudentsQuery, useUpdateStudentMutation, useCreateStudentMutation, useGetSeatLayoutQuery, useGetSeatLayoutByShiftQuery, useGetAttendanceQuery, useAssignSeatMutation , useVacantSeatMutation , useGetAdminStatsQuery,  useGetFeesQuery} = adminAPI;

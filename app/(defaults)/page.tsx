@@ -64,7 +64,7 @@ export default function Home() {
     <aside className="w-full md:w-64 bg-gray-100 p-6 flex flex-col">
       <div className="flex items-center space-x-2 mb-8">
         <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-red-500 rounded-full"></div>
-        <span className="text-2xl font-bold text-purple-700">VRISTO</span>
+        <span className="text-2xl font-bold text-purple-700">Library Logix</span>
       </div>
       <nav className="flex-1">
         <p className="text-gray-500 text-sm uppercase mb-4">Apps</p>
