@@ -1,9 +1,9 @@
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useCreateStudentMutation, useUpdateStudentMutation } from '@/store/api/adminAPI';
 import IconX from '@/components/icon/icon-x';
 import FormInput from '@/components/applicationUI/FormInput';
+import { useForm } from 'react-hook-form';
 
 interface StudentModalProps {
     isOpen: boolean;
