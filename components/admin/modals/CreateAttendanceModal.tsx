@@ -21,7 +21,7 @@ const CreateAttendanceModal: React.FC<CreateAttendanceModalProps> = ({
   ids,
   stuDetails
 }) => {
-  const { data: students } = useGetStudentsQuery(undefined, {
+  const { data: students } = useGetStudentsQuery({ active: true }, {
     selectFromResult: ({ data }) => ({
       data: Array.isArray(data?.data)
         ? data.data.map((student: { name: string; _id: string; shift: string }) => ({

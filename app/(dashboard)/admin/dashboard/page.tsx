@@ -5,6 +5,7 @@ import AttendanceDonutChart from "@/components/applicationUI/AttendanceDonutChar
 import FeesDonutChart from "@/components/applicationUI/FeesDonutChart";
 import SeatLayoutForAllShiftsCmp from "@/components/applicationUI/SeatLayoutForAllShifts";
 import HolidayListComponent from "@/components/applicationUI/HolidayListComponent";
+import GenderDonutChart from "@/components/applicationUI/GenderDonutChart";
 
 
 // Header Component
@@ -38,8 +39,6 @@ const Header: React.FC = () => {
   );
 };
 
-const AttendanceCard = () => <AttendanceDonutChart />;
-const FeesCard = () => <FeesDonutChart />;
 const shifts = ["Morning", "Afternoon", "Evening", "Full Day"];
 
 const Dashboard = () => (
@@ -47,26 +46,31 @@ const Dashboard = () => (
     <Header />
     
     {/* Responsive grid layout */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-100">
-      <AttendanceCard />
-      <FeesCard />
-      <HolidayListComponent />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 px-0 bg-gray-100">
+      <AttendanceDonutChart />
+      <FeesDonutChart />
+      <GenderDonutChart />
     </div>
 
     {/* Seat Layout Section */}
-    <div className="bg-white rounded-lg shadow-md grid grid-cols-1 lg:grid-cols-[70%_30%] gap-4 p-4 md:p-6">
-      <div>
-        <div className="flex justify-between border-b pb-3 mb-3">
-          <h5 className="text-lg font-semibold">Seats Status</h5>
+    <div className="max-w-full flex w-full bg-white rounded-lg shadow-sm p-4">
+      {/* Seat Layout Section (70%) */}
+      <div className="flex-[7] overflow-hidden p-4 relative group">
+        <div className="flex justify-between mb-3 border-b-2 pb-4">
+          <h5 className="text-lg font-semibold font-nunito">Seat Layouts</h5>
         </div>
-        <div className="flex overflow-x-auto space-x-4 p-4 bg-white">
+        {/* Horizontal Scroll Container */}
+        <div
+          className="flex overflow-x-auto space-x-4 p-4 bg-white scrollbar-hide group-hover:scrollbar-custom"
+        >
           {shifts.map((shift) => (
             <SeatLayoutForAllShiftsCmp key={shift} shift={shift} />
           ))}
         </div>
       </div>
-      <FeesCard />
+      <HolidayListComponent />
     </div>
+
   </>
 );
 

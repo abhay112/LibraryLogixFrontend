@@ -8,8 +8,8 @@ import { useGetStudentsQuery } from "@/store/api/adminAPI";
 import StudentModal from "./StudentModal";
 
 
-const AdminStudentTable = () => {
-  const { data: students, error, isLoading } =  useGetStudentsQuery({ active: true });
+const AdminInActiveStudentTable = () => {
+  const { data: students, error, isLoading } =  useGetStudentsQuery({ active: false });
   const [data,setData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [studentData, setStudentData] = useState(null);
@@ -40,7 +40,6 @@ const AdminStudentTable = () => {
           <span>Students</span>
         </li>
       </ul>
-      <button type="submit" className="btn btn-primary w-full" onClick={()=>{handleModalOpen(null)}}>Create Students</button>
 
       <div className="table-responsive flex mb-5 bg-white mt-4 dark:text-white-light dark:bg-slate-700">
         <table>
@@ -91,4 +90,4 @@ const AdminStudentTable = () => {
   );
 };
 
-export default AdminStudentTable;
+export default AdminInActiveStudentTable;

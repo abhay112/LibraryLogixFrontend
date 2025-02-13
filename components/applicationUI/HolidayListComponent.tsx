@@ -1,5 +1,5 @@
 import Dropdown from '@/components/dropdown';
-import React, { useEffect, useState } from "react";
+import React from "react";
 import IconServer from "@/components/icon/icon-server";
 import IconHorizontalDots from "@/components/icon/icon-horizontal-dots";
 import IconPlus from "@/components/icon/icon-plus";
@@ -10,8 +10,8 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 
 const HolidayListComponent = () => {
   return (
-    <div className="panel h-full">
-        <div className="-mx-5 mb-5 flex items-start justify-between border-b border-white-light p-5 pt-0  dark:border-[#1b2e4b] dark:text-white-light">
+    <div className="panel border-0 shadow-none h-full flex-[3]">
+        <div className="-mx-5 mb-3 flex items-start justify-between border-b  p-5 pt-0   ">
             <h5 className="text-lg font-semibold ">Activity Log</h5>
             <div className="dropdown">
                 <Dropdown
@@ -31,7 +31,7 @@ const HolidayListComponent = () => {
                 </Dropdown>
             </div>
         </div>
-        <PerfectScrollbar className="perfect-scrollbar relative h-[160px] ltr:-mr-3 ltr:pr-3 rtl:-ml-3 rtl:pl-3">
+        <PerfectScrollbar className="perfect-scrollbar relative h-[300px] ltr:-mr-3 ltr:pr-3 rtl:-ml-3 rtl:pl-3">
             <div className="space-y-7">
                 <div className="flex">
                     <div className="relative z-10 shrink-0 before:absolute before:left-4 before:top-10 before:h-[calc(100%-24px)] before:w-[2px] before:bg-white-dark/30 ltr:mr-2 rtl:ml-2">

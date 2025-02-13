@@ -96,23 +96,9 @@ const AdminAttendaceTable = () => {
                 <td className="text-center">
                   <ul className="flex items-center justify-center gap-2">
                     <li>
-                      <Tippy content="Settings">
-                        <button type="button">
-                          <IconSettings className="h-5 w-5 text-primary" />
-                        </button>
-                      </Tippy>
-                    </li>
-                    <li>
                       <Tippy content="Edit">
                         <button type="button">
                           <IconPencil className="text-success" />
-                        </button>
-                      </Tippy>
-                    </li>
-                    <li>
-                      <Tippy content="Delete">
-                        <button type="button">
-                          <IconTrashLines className="text-danger" />
                         </button>
                       </Tippy>
                     </li>

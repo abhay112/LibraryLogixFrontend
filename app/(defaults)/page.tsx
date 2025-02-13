@@ -26,8 +26,8 @@ const attendanceData = [
 
 
 const feesData = [
-  { name: "Paid", value: 70, color: "#2196F3" }, // Green for Paid
-  { name: "Unpaid", value: 30, color: "#FFC107" }, // Red for Unpaid (Absent)
+  { name: "Paid", value: 70, color: "#2196F3" }, 
+  { name: "Unpaid", value: 30, color: "#FFC107" }, 
 ];
 const features = [
   {
@@ -190,7 +190,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 50 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.8 }}
-        className="flex flex-col items-center text-center pt-8 px-4 "
+        className="flex flex-col items-center text-center pt-8 px-4 h-screen justify-center "
       >
         <h1 className="text-5xl font-bold">
           Smarter Library Management <br />
@@ -246,13 +246,11 @@ export default function Home() {
                   </ul>
                 </nav>
               </aside>
-      
-              {/* Main Content */}
               <motion.div
                 className="flex-1 flex flex-col overflow-y-auto"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }} // Smooth transition for opacity change
+                transition={{ duration: 0.5 }} 
               >
                 <header className="flex justify-between items-center p-6 border-b">
                   <div className="flex items-center space-x-4">
@@ -270,8 +268,6 @@ export default function Home() {
                     <FaUserCircle className="text-gray-600 text-3xl cursor-pointer" />
                   </div>
                 </header>
-      
-                {/* Dynamic Content */}
                 <div className="p-6">{renderContent()}</div>
               </motion.div>
             </div>

@@ -8,9 +8,11 @@ export const adminAPI = createApi({
   }),
   endpoints: (builder) => ({
     getStudents: builder.query({
-      query: () =>
-         `/admin/students?type=notPresent`,
-      providesTags:["assign-attendance"]
+      query: (params) => ({
+        url: '/admin/students',
+        params: {  ...params }, 
+      }),
+      providesTags: ['assign-attendance'],
     }),
 
     updateStudent: builder.mutation({

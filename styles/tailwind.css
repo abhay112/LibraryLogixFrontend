@@ -508,6 +508,41 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     }
 }
 
+/* Hide scrollbar by default */
+.scrollbar-hide::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    display: none;
+  }
+  
+  /* Show scrollbar on hover with smooth animation */
+  .scrollbar-custom::-webkit-scrollbar {
+    height: 8px; /* Only horizontal scrollbar */
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 8px;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 8px;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  /* Change scrollbar color on hover */
+  .scrollbar-custom:hover::-webkit-scrollbar-thumb {
+    background: #555;
+  }
+  
+  /* Hide vertical scrollbar */
+  .scrollbar-custom::-webkit-scrollbar:vertical {
+    display: none;
+  }
+  
+
 /* perfect scrollbar */
 .ps__rail-y > .ps__thumb-y,
 .ps__rail-y > .ps__thumb-y {
